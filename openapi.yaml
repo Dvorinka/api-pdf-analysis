@@ -1,0 +1,153 @@
+openapi: 3.0.3
+info:
+  title: PDF Analysis API
+  description: API for extracting and analyzing content from PDF documents
+  version: 1.0.0
+  contact:
+    name: API Services
+  license:
+    name: MIT
+
+servers:
+  - url: http://localhost:8086
+    description: Development server
+  - url: https://api.example.com
+    description: Production server
+
+paths:
+  /healthz:
+    get:
+      summary: Health check endpoint
+      description: Returns the health status of the service
+      tags:
+        - Health
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+
+  /v1/pdf/analyze:
+    post:
+      summary: Analyze PDF file
+      description: Upload and extract content and metadata from a PDF document
+      tags:
+        - PDF Analysis
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: PDF file to analyze
+      responses:
+        '200':
+          description: Successful PDF analysis response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AnalyzeResult'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '405':
+          description: Method not allowed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    AnalyzeResult:
+      type: object
+      properties:
+        source_filename:
+          type: string
+          description: Original filename of the PDF
+          example: "document.pdf"
+        page_count:
+          type: integer
+          description: Number of pages in the PDF
+          example: 15
+        word_count:
+          type: integer
+          description: Estimated word count
+          example: 2500
+        image_count_estimate:
+          type: integer
+          description: Estimated number of images
+          example: 8
+        has_digital_signature:
+          type: boolean
+          description: Whether the PDF has a digital signature
+          example: false
+        metadata:
+          type: object
+          description: Extracted PDF metadata
+          additionalProperties:
+            type: string
+          example:
+            title: "Annual Report 2023"
+            author: "John Doe"
+            creator: "Microsoft Word"
+            producer: "Microsoft Word"
+            creation_date: "2023-01-01T10:00:00Z"
+            modification_date: "2023-01-15T14:30:00Z"
+        table_rows_detected:
+          type: array
+          description: Detected table row data
+          items:
+            type: string
+          example: ["Q1 2023 Revenue $1,000,000", "Q2 2023 Revenue $1,200,000"]
+        extracted_text_preview:
+          type: string
+          description: Preview of extracted text content
+          example: "Annual Report 2023\n\nExecutive Summary:\nThis report presents the financial performance..."
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+          example: "file field is required"
+
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: API key for authentication (format: "Bearer YOUR_API_KEY")
+
+tags:
+  - name: Health
+    description: Health check endpoints
+  - name: PDF Analysis
+    description: PDF content extraction and analysis functionality

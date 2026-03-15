@@ -1,4 +1,4 @@
-module pdf-analysis
+module apiservices/pdf-analysis
 
 go 1.25.7
 

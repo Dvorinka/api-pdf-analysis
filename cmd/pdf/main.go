@@ -18,7 +18,7 @@ import (
 func main() {
 	logger := log.New(os.Stdout, "[pdf] ", log.LstdFlags)
 
-	port := envString("PORT", "8086")
+	port := envString("PORT", "30012")
 	apiKey := envString("PDF_API_KEY", "dev-pdf-key")
 	maxUploadMB := envInt("PDF_MAX_UPLOAD_MB", 20)
 
